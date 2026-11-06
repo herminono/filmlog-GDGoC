@@ -342,9 +342,21 @@ def get_watched():
 def add_watched():
     user_id = int(get_jwt_identity())
     data = request.get_json(silent=True)
+
     if not isinstance(data, dict):
         return jsonify({"error": "Invalid JSON body"}), 400
     movie_id = data.get("movie_id", data.get("movieId"))
+    existing_review = db.session.execute(
+        select(Review).where(
+            Review.user_id == user_id,
+            Review.movie_id == movie_id
+        )
+    ).scalar_one_or_none()
+
+    if existing_review:
+        return jsonify({
+            "error": "You have already reviewed this movie."
+        }), 409
     rating = data.get("rating")
     review = data.get("review", data.get("opinion"))
     if type(movie_id) != int:
