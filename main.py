@@ -51,7 +51,7 @@ if database_url.startswith("postgresql://"):
     database_url =  database_url.replace(
         "postgresql://", "postgresql+psycopg://", 1
     )
-print(database_url)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
@@ -128,8 +128,12 @@ class Review(db.Model):
         default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
         nullable=False)
 
-    _table_args__ = (
-        db.CheckConstraint("rating BETWEEN 1 AND 10", name="valid_review_rating"),
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "movie_id",
+            name="uq_reviews_user_movie"
+        ),
     )
 
 
@@ -210,7 +214,7 @@ def login():
         select(User).where(User.email == email.strip().lower())
     ).scalar_one_or_none()
     if user is None or not check_password_hash(user.password_hash, password):
-        return jsonify({"error":"Invalid credentials"}), 400
+        return jsonify({"error":"Invalid credentials"}), 401
     token = create_access_token(identity=str(user.id))
     return jsonify({
         "message": "Login berhasil",
@@ -346,17 +350,7 @@ def add_watched():
     if not isinstance(data, dict):
         return jsonify({"error": "Invalid JSON body"}), 400
     movie_id = data.get("movie_id", data.get("movieId"))
-    existing_review = db.session.execute(
-        select(Review).where(
-            Review.user_id == user_id,
-            Review.movie_id == movie_id
-        )
-    ).scalar_one_or_none()
 
-    if existing_review:
-        return jsonify({
-            "error": "You have already reviewed this movie."
-        }), 409
     rating = data.get("rating")
     review = data.get("review", data.get("opinion"))
     if type(movie_id) != int:
@@ -370,14 +364,35 @@ def add_watched():
     if movie is None:
         return jsonify({"error": "Movie not found"}), 404
 
+    existing_review = db.session.execute(
+        select(Review).where(
+            Review.user_id == user_id,
+            Review.movie_id == movie_id
+        )
+    ).scalar_one_or_none()
+
+    if existing_review:
+        return jsonify({
+            "error": "You have already reviewed this movie."
+        }), 409
     new_review = Review(
         user_id=user_id,
         movie_id=movie_id,
         rating=rating,
         review=review.strip(),
     )
-    db.session.add(new_review)
-    db.session.commit()
+    try:
+        db.session.add(new_review)
+        db.session.commit()
+
+    except IntegrityError:
+        db.session.rollback()
+        app.logger.exception(
+            "Review database integrity violation"
+        )
+        return jsonify({
+            "error": "Review could not be saved due to a data conflict"
+        }), 409
 
     return jsonify({
         "message": "Movie review saved",
