@@ -51,6 +51,7 @@ The frontend communicates with the Flask backend through HTTP requests. The back
 User information, movie details, watchlists, and reviews are stored in a PostgreSQL database hosted on Neon.
 For AI recommendations,  the backend sends the available movie catalog and the user's preferences to Gemini. The returned movie ID is then validated against the database before the recommendation is sent to the frontend.
 #### Application Flow:
+```
 User
  |
  v
@@ -70,6 +71,7 @@ Flask REST API
            v
       AI Recommendation
 Deployment: Vercel
+```
 
 ## Database Design
 FilmLog uses a relational database consistng of four main tables
@@ -112,7 +114,24 @@ Added unique constraint on user_id and movie_id prevents duplicate reviews.
 - One user can write multiple reviews for different movies.
 - One movie can receive multiple reviews from multiple users.
 ### ERD
+The following Entity Relationship Diagram (ERD) illustrates FilmLog's relational database structure,
+consisting of four main entities: Users, Movies, Watchlists, and Reviews.
+
+
 <img width="667" height="747" alt="image" src="https://github.com/user-attachments/assets/25792855-50e9-46a9-9cd2-4073de55439a" />
+
+The database implements four one-to-many relationships:
+##### - Users -> Watchlists: A user can save multiple movies to thgeir personal watchlist.
+##### - Movies -> Watchlists: A movie can appear in multiple users' watchlists.
+##### - Users -> Reviews: A user can submit reviews for multiple movies.
+##### - Movies -> Reviews: A movie can receive reviews from multiple users.
+The **Watchlists** and **Reviews** tables function as junction tables, establishing many-to-many (M) relationships between users and movies.
+#### Database Contrainsts
+To maintain data integrity, FilmLog implements the following constraints:
+- **Primary Key (PK)**: Each table has a unique id that identifies individual records.
+- **Foreign Key (FK)**: The user_id and movie_id columns in Watchlists and Reviews reference the Users and Movies tables, respectively.
+- **Unique Email**: The email column in Users has a unique constraint to prevent duplicate registered email address.
+- **Composite Unique Constraints**: Both Watchlists and Reviews enforce a unique constraint on (user_id, movie_id), preventing duplicate watchlist entries and multiple reviews of the same movie by the same user.
 
 
 ## REST API Endpoints
