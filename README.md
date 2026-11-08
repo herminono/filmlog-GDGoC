@@ -111,6 +111,9 @@ Added unique constraint on user_id and movie_id prevents duplicate reviews.
 - One movie can appear in multiple users' watchlists.
 - One user can write multiple reviews for different movies.
 - One movie can receive multiple reviews from multiple users.
+### ERD
+<img width="667" height="747" alt="image" src="https://github.com/user-attachments/assets/25792855-50e9-46a9-9cd2-4073de55439a" />
+
 
 ## REST API Endpoints
 FilmLog has 10 API endpoints.
