@@ -181,9 +181,11 @@ Database foreign key and unique constraints help maintain users' data integrity.
 5. The backend validates whether the recommended movie exists in the database.
 6. If the recommended movie exists in the database, the movie details and recommendation reasoning are returned to the user.
 #### Example Request:
+```json
 {
   "prompt": "I want a cartoonish movie with robot in it."
 }
+```
 The AI is instructed to recommend only one movie from FilmLog's existing catalog. Backend validation is used as an additional check against unsupported movie IDs.
 
 ## Installation and Setup
@@ -193,8 +195,8 @@ The AI is instructed to recommend only one movie from FilmLog's existing catalog
 - A PostgreSQL database, such as Neon
 - A Google Gemini API key
 #### 1. Clone this Repository
-`git clone github.com/herminono/filmlog-GDGoC`
-`cd github.com/herminono/filmlog-GDGoC`
+`git clone https://github.com/herminono/filmlog-GDGoC`
+`cd filmlog-GDGoC`
 #### 2. Create a Virtual Environment
 `python -m venv .venv`
 Activate it on Windows:
@@ -241,9 +243,9 @@ API responses use HTTP status codes to indicate successful operations and error 
 - Larger movie catalog using TMDB API.
 
 ## Project Information
-**Project Name**: Rico's FilmLog (GDGoC study case)
-**Project Type**: REST API and Movie Management Web Application
-**Purpose**: Backend Development Study Case Assignment
-**Repository**: https://github.com/herminono/filmlog-GDGoC
-**Live Deployment**: https://filmlog-gdgoc.vercel.app
-**API Documentation**: https://documenter.getpostman.com/view/59293580/2sBYHYuJEE
+- **Project Name**: Rico's FilmLog (GDGoC study case)
+- **Project Type**: REST API and Movie Management Web Application
+- **Purpose**: Backend Development Study Case Assignment
+- **Repository**: https://github.com/herminono/filmlog-GDGoC
+- **Live Deployment**: https://filmlog-gdgoc.vercel.app
+- **API Documentation**: https://documenter.getpostman.com/view/59293580/2sBYHYuJEE
